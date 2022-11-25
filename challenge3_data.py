@@ -3,4 +3,8 @@
 
 # COMMAND ----------
 
+# MAGIC %fs ls dbfs:/ehh_hack
+
+# COMMAND ----------
+
 
