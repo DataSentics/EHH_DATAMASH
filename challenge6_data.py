@@ -8,6 +8,14 @@ display(labs_data_df)
 
 # COMMAND ----------
 
+display(labs_data_df.describe())
+
+# COMMAND ----------
+
+pivotDF = labs_data_df.pivot("Country")
+
+# COMMAND ----------
+
 display(labs_data_df.select("Patient").distinct())
 
 # COMMAND ----------
