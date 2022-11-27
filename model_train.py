@@ -141,3 +141,10 @@ shap.force_plot(
     X.iloc[6257,:], 
     matplotlib=True
 ) 
+
+# COMMAND ----------
+
+data = X.iloc[6257].to_dict()
+
+from math import isnan
+data = {k: data[k] for k in data if k=="Sex" or (not isnan(data[k]))}
