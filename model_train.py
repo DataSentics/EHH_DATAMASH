@@ -29,7 +29,6 @@ display(df_nclp_patients.select("Value_adj", "Value"))
 
 # COMMAND ----------
 
-df_labeled# main table for training
 df_tested_patients = (
     df_nclp_patients
     .withColumnRenamed("Value_adj", "target")
@@ -57,9 +56,9 @@ df_joined = df_joined.filter(F.col("Sex").isNotNull())
 # COMMAND ----------
 
 # the main test: 17339 is removed
-# 17341, "14845", "18066" - GFR
+# 17341, "14845", "18066", "1450" "1451" "14691" "8553" - GFR
 # 8574, 8572 - kreatins
-main_tests = {"17339", "17341", "14845", "18066", "8574", "8572"}
+main_tests = {"17339", "17341", "14845", "18066", "1450", "1451", "14691", "8553", "8574", "8572"}
 not_features = {"Patient", "target", "GEntry", "Entry", "CKD", "Weight", "Height"}
 feature_cols = list(set(list(df_joined.columns)) - not_features - main_tests)
 feature_cols.sort()
@@ -119,10 +118,8 @@ model.fit(
 
 # COMMAND ----------
 
+named_feature_cols = name_NCLP(feature_cols)
 model.set_feature_names(named_feature_cols)
-
-# COMMAND ----------
-
 X.columns = named_feature_cols
 
 # COMMAND ----------
@@ -140,26 +137,7 @@ r = random.randint(0, X.shape[0])
 
 shap.force_plot(
     explainer.expected_value, 
-    shap_values[r,:], 
-    X.iloc[r,:], 
+    shap_values[6257,:], 
+    X.iloc[6257,:], 
     matplotlib=True
 ) 
-
-# COMMAND ----------
-
-train_pool = Pool(X_train, y_train, cat_features=["Sex"], feature_names=feature_cols)
-test_pool = Pool(X_val, y_val, cat_features=["Sex"], feature_names=feature_cols)
-
-model = CatBoostRegressor(iterations=1000, random_seed=0)
-summary = model.select_features(
-    train_pool,
-    eval_set=test_pool,
-    features_for_select=f'0-{len(feature_cols)-1}',
-    num_features_to_select=200,
-    steps=20,
-    algorithm=EFeaturesSelectionAlgorithm.RecursiveByShapValues,
-    shap_calc_type=EShapCalcType.Regular,
-    train_final_model=True,
-    logging_level='Silent',
-    plot=True
-)
